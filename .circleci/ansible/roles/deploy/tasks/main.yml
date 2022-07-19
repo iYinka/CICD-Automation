@@ -18,7 +18,7 @@
 
 - name: extract artifact
   become: true
-  unachive:
+  unrachive:
       src: files/artifact.tar.gz
       dest: .
 
