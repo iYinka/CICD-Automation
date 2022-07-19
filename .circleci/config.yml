@@ -380,7 +380,7 @@ jobs:
                   name: View content of inventory.txt
                   command: cat .circleci/ansible/inventory.txt
             - run:
-                  name: Install dependencies
+                  name: Install Dependencies
                   command: |
                       apk add --update  ansible curl rsync openssh nodejs npm
                       pip install awscli
