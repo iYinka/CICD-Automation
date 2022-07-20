@@ -9,26 +9,32 @@
       dest: /home/ubuntu/uda_app
       recursive: true
 
-- name: "copy migration"
+- name: extract artifact
   become: yes
-  synchronize:
-      src: ../../backend/.circleci/ansible/roles/inventory.txt
-      dest: /home/ubuntu/uda_app
-      recursive: true
+  unarchive:
+      src: files/artifact.tar.gz
+      dest: .
 
-- name: "copy migrations into dotenv"
-  become: yes
-  synchronize:
-      src: ../../backend/.env
-      dest: /home/ubuntu/uda_app
-      recursive: true
+# - name: "copy migration"
+#   become: yes
+#   synchronize:
+#       src: ../../backend/.circleci/ansible/roles/inventory.txt
+#       dest: /home/ubuntu/uda_app
+#       recursive: true
 
-- name: "copy API URL into dotenv"
-  become: yes
-  synchronize:
-      src: ../../frontend/.env
-      dest: /home/ubuntu/uda_app
-      recursive: true
+# - name: "copy migrations into dotenv"
+#   become: yes
+#   synchronize:
+#       src: ../../backend/.env
+#       dest: /home/ubuntu/uda_app
+#       recursive: true
+
+# - name: "copy API URL into dotenv"
+#   become: yes
+#   synchronize:
+#       src: ../../frontend/.env
+#       dest: /home/ubuntu/uda_app
+#       recursive: true
 
 - name: "copy node_modules"
   become: yes
