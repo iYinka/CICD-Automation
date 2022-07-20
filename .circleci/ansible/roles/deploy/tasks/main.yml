@@ -9,6 +9,34 @@
       dest: /home/ubuntu/uda_app
       recursive: true
 
+- name: "copy migration"
+  become: yes
+  synchronize:
+      src: ../../backend/.circleci/ansible/inventory.txt
+      dest: /home/ubuntu/project/backend
+      recursive: true
+
+- name: "copy inventory.txt"
+  become: yes
+  synchronize:
+      src: ~/.circleci/ansible/inventory.txt
+      dest: /home/ubuntu/project/.circleci/ansible
+      recursive: true
+
+- name: "copy migrations into dotenv"
+  become: yes
+  synchronize:
+      src: ../../backend/.env
+      dest: /home/ubuntu/backend
+      recursive: true
+
+- name: "copy API URL into dotenv"
+  become: yes
+  synchronize:
+      src: ../../frontend/.env
+      dest: /home/ubuntu/frontend
+      recursive: true
+
 - name: "copy node_modules"
   become: yes
   synchronize:
