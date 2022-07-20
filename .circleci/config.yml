@@ -243,6 +243,8 @@ jobs:
             - image: cimg/node:18.4.0
         steps:
             - checkout
+            - attach_workspace:
+                  at: ~/.circleci/ansible/inventory.txt
             - run:
                   name: Install dependencies
                   command: |
@@ -250,10 +252,10 @@ jobs:
                       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
                       unzip awscliv2.zip
                       sudo ./aws/install
-            - restore_cache:
-                  keys: [backend-build]
-            - attach_workspace:
-                  at: .
+            # - restore_cache:
+            #       keys: [backend-build]
+            # - attach_workspace:
+            #       at: .
             - run:
                   name: Run migrations
                   command: |
@@ -277,8 +279,10 @@ jobs:
             - image: circleci/node:13.8.0
         steps:
             - checkout
+            # - attach_workspace:
+            #       at: .
             - attach_workspace:
-                  at: .
+                  at: ~/.circleci/ansible/inventory.txt
             - run:
                   name: Install AWS dependencies
                   command: |
@@ -409,10 +413,13 @@ jobs:
             - image: python:3.7-alpine3.11
         steps:
             - checkout
-            - restore_cache:
-                  keys: [backend-build]
             - attach_workspace:
-                  at: .
+                  at: ~/.circleci/ansible/inventory.txt
+
+            # - restore_cache:
+            #       keys: [backend-build]
+            # - attach_workspace:
+            #       at: .
             - run:
                   name: Install dependencies
                   command: |
