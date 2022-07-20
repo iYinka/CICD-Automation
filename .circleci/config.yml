@@ -262,11 +262,11 @@ jobs:
             - run:
                   name: Run migrations
                   command: |
-                        cd backend
-                        npm install
-                        npm run migrations >> migrations.txt
-                        echo "Contents  of the migrations_dump.txt file is -------"
-                        cat migrations.txt
+                      cd backend
+                      npm install
+                      npm run migrations >> migrations.txt
+                      echo "Contents  of the migrations_dump.txt file is -------"
+                      cat migrations.txt
             - run:
                   name: Send migration results to kvdb
                   command: |
@@ -420,11 +420,6 @@ jobs:
                       --stack-name InitialStack \
                       --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
                       --tags project=udapeople
-                  #   aws cloudformation deploy \
-                  #   --template-file .circleci/files/cloudfront.yml \
-                  #   --stack-name InitialStack \
-                  #   --parameter-overrides NewWorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
-                  #   --tags '[{"Key":"Project","Value":"udapeople"},{"Key":"Name", "Value":"udapeople"}]'
             - revert-migrations:
                   workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -480,19 +475,19 @@ jobs:
 workflows:
     default:
         jobs:
-                        - build-frontend
-                        - build-backend
-                        - test-frontend:
-                              requires: [build-frontend]
-                        - test-backend:
-                              requires: [build-backend]
-                        - scan-backend:
-                              requires: [build-backend]
-                        - scan-frontend:
-                              requires: [build-frontend]
+            - build-frontend
+            - build-backend
+            - test-frontend:
+                  requires: [build-frontend]
+            - test-backend:
+                  requires: [build-backend]
+            - scan-backend:
+                  requires: [build-backend]
+            - scan-frontend:
+                  requires: [build-frontend]
             - deploy-infrastructure:
                   requires:
-                              [test-frontend, test-backend, scan-frontend, scan-backend]
+                      [test-frontend, test-backend, scan-frontend, scan-backend]
                   filters:
                       branches:
                           only: [master]
