@@ -219,22 +219,23 @@ jobs:
             - run:
                   name: Configure server
                   command: |
-                      # echo ENVIRONMENT=production > backend/.env
-                      # echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
-                      # echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
-                      # echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
-                      # echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
-                      # echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
-                      # echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
-                      # echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
-                      # echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
-                      # echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
-                      # cat backend/.env
+                      echo ENVIRONMENT=production > backend/.env
+                      echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
+                      echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
+                      echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+                      echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+                      echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+                      echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+                      echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
+                      echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
+                      echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
+                      cat backend/.env
                       cd .circleci/ansible
                       ansible-playbook -i inventory.txt configure-server.yml
-            # - persist_to_workspace:
-            #       root: ~/
-            #       paths: [project/backend]
+            - persist_to_workspace:
+                  root: ~/
+                  paths:
+                      - project/.circleci/ansible/inventory.txt
             - destroy-environment:
                   workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -252,10 +253,10 @@ jobs:
                       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
                       unzip awscliv2.zip
                       sudo ./aws/install
-            # - restore_cache:
-            #       keys: [backend-build]
-            # - attach_workspace:
-            #       at: .
+            - restore_cache:
+                  keys: [backend-build]
+            - attach_workspace:
+                  at: ~/
             - run:
                   name: Run migrations
                   command: |
@@ -380,8 +381,6 @@ jobs:
             - add_ssh_keys:
                   fingerprints:
                       ["ce:ea:19:fd:f5:e6:0d:a8:83:79:bb:30:41:6a:e6:da"]
-            - attach_workspace:
-                  at: .
             - run:
                   name: View content of inventory.txt
                   command: cat .circleci/ansible/inventory.txt
@@ -391,8 +390,10 @@ jobs:
                       apk add --update  ansible curl rsync openssh nodejs npm
                       pip install awscli
                       aws --version
-            # - restore_cache:
-            #       keys: [backend-build]
+            - restore_cache:
+                  keys: [backend-build]
+            - attach_workspace:
+                  at: ~/
             - run:
                   name: Deploy backend
                   command: |
