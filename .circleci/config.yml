@@ -262,10 +262,6 @@ jobs:
             - run:
                   name: Run migrations
                   command: |
-                      #   npm install
-                      #   # --legacy-peer-deps
-                      #   npm audit fix --audit-level=critical
-                      #   npm run build
                         cd backend
                         npm install
                         npm run migrations >> migrations.txt
@@ -287,8 +283,6 @@ jobs:
             - image: circleci/node:13.8.0
         steps:
             - checkout
-            # - attach_workspace:
-            #       at: .
             - attach_workspace:
                   at: ~/.circleci/ansible/inventory.txt
             - run:
@@ -298,8 +292,6 @@ jobs:
                       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
                       unzip awscliv2.zip
                       sudo ./aws/install
-            # - restore_cache:
-            #       keys: [frontend-build]
             - run:
                   name: Get backend url
                   command: |
@@ -325,59 +317,6 @@ jobs:
                   workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
             - revert-migrations:
                   workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-
-    # deploy-backend:
-    #     docker:
-    #         - image: python:3.7-alpine3.11
-    #     steps:
-    #         - checkout
-    #         - add_ssh_keys:
-    #               fingerprints:
-    #                   ["ce:ea:19:fd:f5:e6:0d:a8:83:79:bb:30:41:6a:e6:da"]
-    #         - attach_workspace:
-    #               at: .
-    #         - run:
-    #               name: View content of inventory.txt
-    #               command: cat .circleci/ansible/inventory.txt
-    #         - run:
-    #               name: Install dependencies
-    #               command: |
-    #                   apk add --update ansible curl rsync openssh nodejs npm
-    #                   pip install awscli
-    #                   aws --version
-    #         - run:
-    #               name: Deploy backend
-    #               command: |
-    #                   cd backend
-    #                   npm i
-    #                   npm run build
-    #                   cd ..
-    #                   tar -C backend -czvf ~/artifact.tar.gz.
-
-    #                   mkdir ~/project/.circleci/ansible/roles/deploy/files
-    #                   cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
-    #                   ls -lh
-    #                   ~/project/.circleci/ansible/roles/deploy/files/
-
-    #                   cd .circleci/ansible
-    #                   echo "Contents  of the inventory.txt file is -------"
-    #                   cat inventory.txt
-    #                   ansible-playbook -i inventory.txt deploy-backend.yml
-    #         - persist_to_workspace:
-    #               root: ~/
-    #               paths:
-    #                   - project/artifact.tar.gz
-
-    #                   #   echo "Present working directory is -------"
-    #                   #   cd .circleci/ansible
-
-    #                   #   echo "Contents  of the inventory.txt file is -------"
-    #                   #   cat inventory.txt
-    #                   #   ansible-playbook -i inventory.txt deploy-backend.yml -vv
-    #         - destroy-environment:
-    #               workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-    #         - revert-migrations:
-    #               workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
     deploy-backend:
         docker:
             - image: python:3.7-alpine3.11
@@ -412,15 +351,6 @@ jobs:
                       cd .circleci/ansible
                       echo "Contents of the inventory.txt file is ------$(cat inventory.txt)"
                       ansible-playbook -i inventory.txt deploy-backend.yml
-                  # cd backend
-                  # npm i
-                  # npm run build
-                  # cd ..
-                  # tar -C backend -czvf artifact.tar.gz .
-                  # cd .circleci/ansible
-                  # echo "Contents  of the inventory.txt file is -------"
-                  # cat inventory.txt
-                  # ansible-playbook -i inventory.txt deploy-backend.yml -vv
             - destroy-environment:
                   workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
             - revert-migrations:
@@ -433,11 +363,6 @@ jobs:
             - checkout
             - attach_workspace:
                   at: ~/.circleci/ansible/inventory.txt
-
-            # - restore_cache:
-            #       keys: [backend-build]
-            # - attach_workspace:
-            #       at: .
             - run:
                   name: Install dependencies
                   command: |
@@ -555,19 +480,19 @@ jobs:
 workflows:
     default:
         jobs:
-            #             - build-frontend
-            #             - build-backend
-            #             - test-frontend:
-            #                   requires: [build-frontend]
-            #             - test-backend:
-            #                   requires: [build-backend]
-            #             - scan-backend:
-            #                   requires: [build-backend]
-            #             - scan-frontend:
-            #                   requires: [build-frontend]
+                        - build-frontend
+                        - build-backend
+                        - test-frontend:
+                              requires: [build-frontend]
+                        - test-backend:
+                              requires: [build-backend]
+                        - scan-backend:
+                              requires: [build-backend]
+                        - scan-frontend:
+                              requires: [build-frontend]
             - deploy-infrastructure:
-                  #   requires:
-                  #       #       [test-frontend, test-backend, scan-frontend, scan-backend]
+                  requires:
+                              [test-frontend, test-backend, scan-frontend, scan-backend]
                   filters:
                       branches:
                           only: [master]
@@ -581,10 +506,10 @@ workflows:
                   requires: [run-migrations]
             - smoke-test:
                   requires: [deploy-backend, deploy-frontend]
-            # - cloudfront-update:
-            #       requires: [smoke-test]
-            # - cleanup:
-            #       requires: [cloudfront-update]
-            # - notify:
-            #       context: CICD ALERT
-            #       requires: [cleanup]
+            - cloudfront-update:
+                  requires: [smoke-test]
+            - cleanup:
+                  requires: [cloudfront-update]
+            - notify:
+                  context: CICD ALERT
+                  requires: [cleanup]
