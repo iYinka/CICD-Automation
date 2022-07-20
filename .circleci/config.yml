@@ -230,7 +230,7 @@ jobs:
                       echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
                       echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
 
-                      echo "Contents  of the .env file is -------"
+                      echo "Contents  of the .env file is -----"
                       cat backend/.env
 
                       cd .circleci/ansible
