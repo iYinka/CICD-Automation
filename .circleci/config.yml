@@ -244,7 +244,7 @@ jobs:
 
     run-migrations:
         docker:
-            - image: cimg/node:18.4.0
+            - image: circle/node:13.8.0
         steps:
             - checkout
             - attach_workspace:
@@ -252,21 +252,22 @@ jobs:
             - run:
                   name: Install dependencies
                   command: |
-                      sudo apt-get update && sudo apt-get install -yy less
-                      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                      unzip awscliv2.zip
-                      sudo ./aws/install
-            # - restore_cache:
-            #       keys: [backend-build]
+                      #   sudo apt-get update && sudo apt-get install -yy less
+                        sudo apt install -y tar gzip curl
+                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                        unzip awscliv2.zip
+                        sudo ./aws/install
+            - restore_cache:
+                  keys: [backend-build]
             - run:
                   name: Run migrations
                   command: |
                       cd backend
-                      npm install
-                      # --legacy-peer-deps
-                      npm audit fix --audit-level=critical
-                      npm run build
-                      npm run migrations > migrations_dump.txt
+                    #   npm install
+                    #   # --legacy-peer-deps
+                    #   npm audit fix --audit-level=critical
+                    #   npm run build
+                      npm run migrations >> migrations.txt
 
 
                       echo "Contents  of the migrations_dump.txt file is -------"
@@ -274,7 +275,7 @@ jobs:
             - run:
                   name: Send migration results to kvdb
                   command: |
-                      if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+                      if grep -q "has been executed successfully." ~/project/backend/migrations.txt
                       then
                           sudo apt-get update && sudo apt-get install -y ca-certificates
                           curl https://kvdb.io/7b9Uf8fdHQ9AZvnGEypqQL/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
