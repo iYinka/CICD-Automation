@@ -267,6 +267,7 @@ jobs:
                       #   npm audit fix --audit-level=critical
                       #   npm run build
                         cd backend
+                        npm install
                         npm run migrations >> migrations.txt
                         echo "Contents  of the migrations_dump.txt file is -------"
                         cat migrations.txt
