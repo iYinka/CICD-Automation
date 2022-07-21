@@ -29,7 +29,7 @@ commands:
                   when: on_fail
                   command: |
                       # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-                      SUCCESS=$(curl --insecure https://kvdb.io/7b9Uf8fdHQ9AZvnGEypqQL/migration_<< parameters.workflow_id >>)
+                      SUCCESS=$(curl --insecure https://kvdb.io/X1Uj2mFBgNdpQsm7naVHtK/migration_<< parameters.workflow_id >>)
                       echo $SUCCESS
                       if(( $SUCCESS==1 ));
                       then
@@ -38,6 +38,7 @@ commands:
                         npm run build
                         npm run migrations:revert
                       fi
+
 jobs:
     build-frontend:
         docker:
@@ -273,7 +274,7 @@ jobs:
                       if grep -q "has been executed successfully." ~/project/backend/migrations.txt
                       then
                           sudo apt-get update && sudo apt-get install -y ca-certificates
-                          curl https://kvdb.io/7b9Uf8fdHQ9AZvnGEypqQL/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+                          curl https://kvdb.io/X1Uj2mFBgNdpQsm7naVHtK/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
                       fi
             - destroy-environment:
                   workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -317,6 +318,7 @@ jobs:
                   workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
             - revert-migrations:
                   workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+
     deploy-backend:
         docker:
             - image: python:3.7-alpine3.11
@@ -450,6 +452,7 @@ jobs:
                       else
                           echo "$OldWorkflowID==$CurrentWorkflowID => all good."
                       fi
+
     notify:
         docker:
             - image: "cimg/base:stable"
@@ -472,25 +475,52 @@ jobs:
                       }
                   event: always
 
+    add-prometheus-node-exporter:
+        docker:
+            - image: python:3.7-alpine3.16
+        steps:
+            - checkout
+            - add_ssh_keys:
+                  fingerprints:
+                      ["ce:ea:19:fd:f5:e6:0d:a8:83:79:bb:30:41:6a:e6:da"]
+            - run:
+                  name: Install dependencies
+                  command: |
+                      apk add --update aws-cli tar gzip ansible nodejs npm
+            - attach_workspace:
+                  at: ~/
+            - run:
+                  name: Setup Prometheus Node Exporter
+                  command: |
+                      cd .circleci/ansible
+                      cat inventory.txt
+                      ansible-playbook -i inventory.txt node-exporter.yml
+            - destroy-environment:
+                  workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+            - revert-migrations:
+                  workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+
 workflows:
     default:
         jobs:
-            - build-frontend
-            - build-backend
-            - test-frontend:
-                  requires: [build-frontend]
-            - test-backend:
-                  requires: [build-backend]
-            - scan-backend:
-                  requires: [build-backend]
-            - scan-frontend:
-                  requires: [build-frontend]
+            # - build-frontend
+            # - build-backend
+            # - test-frontend:
+            #       requires: [build-frontend]
+            # - test-backend:
+            #       requires: [build-backend]
+            # - scan-backend:
+            #       requires: [build-backend]
+            # - scan-frontend:
+            #       requires: [build-frontend]
             - deploy-infrastructure:
-                  requires:
-                      [test-frontend, test-backend, scan-frontend, scan-backend]
+                  #   requires:
+                  #       [test-frontend, test-backend, scan-frontend, scan-backend]
                   filters:
                       branches:
                           only: [master]
+            - add-prometheus-node-exporter:
+                  requires: [deploy-infrastructure]
             - configure-infrastructure:
                   requires: [deploy-infrastructure]
             - run-migrations:
@@ -503,8 +533,8 @@ workflows:
                   requires: [deploy-backend, deploy-frontend]
             - cloudfront-update:
                   requires: [smoke-test]
-            - cleanup:
-                  requires: [cloudfront-update]
-            - notify:
-                  context: CICD ALERT
-                  requires: [cleanup]
+            # - cleanup:
+            #       requires: [cloudfront-update, add-prometheus-node-exporter]
+            # - notify:
+            #       context: CICD ALERT
+            #       requires: [cleanup]
