@@ -167,7 +167,7 @@ jobs:
                   command: |
                       yum install -y tar gzip curl awscli
             - run:
-                  name: Ensure back-end infrastructure exists
+                  name: Ensure backend infrastructure exists
                   command: |
                       aws cloudformation deploy \
                         --template-file .circleci/files/backend.yml \
