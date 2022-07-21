@@ -10,15 +10,15 @@ Parameters:
     VPC:
         Description: Deploy the instance in this VPC
         Type: String
-        # Default: vpc-0492b2b84bd1a3194
+        Default: vpc-0492b2b84bd1a3194
     Subnet:
         Description: This subnet must already exist
         Type: String
-        # Default: subnet-096323746be72e4e9
+        Default: subnet-096323746be72e4e9
     AZ:
         Description: Choose an AZ that corresponds to the Subnet in the !Subnet section
         Type: String
-        # Default: us-east-1a
+        Default: us-east-1
     KeyPair:
         Description: |
             Set a keypair you will use to connect to the instance
@@ -40,24 +40,25 @@ Parameters:
     AuthEmail:
         Description: This is the email (Gmail only!) you will use to authenticate the account
         Type: String
-        # Default: olayinkav28@gmail.com
+        Default: olayinkav28@gmail.com
     EmailPassword:
         Description: |
             This is the app password for your gmail account.
             Get one here https://support.google.com/accounts/answer/185833?hl=en
         Type: String
+        Default: ${password}
 
     FromEmail:
         Description: This is the email to send alerts from (usually same as AuthEmail)
         Type: String
-        # Default: olayinkav28@gmail.com
+        Default: olayinkav28@gmail.com
 
     ToEmail:
         Description: The recipient email for alerts
         Type: String
-        # Default: olayinkavictor@rocketmail.com
+        Default: olayinkavictor@rocketmail.com
 
-    # aws cloudformation deploy --stack-name prometheus --template-file prometheus.yml --capabilities CAPABILITY_IAM  --parameter-overrides AuthEmail=olayinkav28@gmail.com EmailPassword=@#victor@# FromEmail=olayinkav28@gmail.com ToEmail=olayinkavictor@rocketmail.com     VPC=vpc-0492b2b84bd1a3194 AZ=us-east-1 Subnet=subnet-096323746be72e4e9
+    # aws cloudformation deploy --stack-name prometheus --template-file prometheus.yml --capabilities CAPABILITY_IAM  --parameter-overrides AuthEmail=olayinkav28@gmail.com EmailPassword=${password} FromEmail=olayinkav28@gmail.com ToEmail=olayinkavictor@rocketmail.com     VPC=vpc-0492b2b84bd1a3194 AZ=us-east-1 Subnet=subnet-096323746be72e4e9
 
 Resources:
     # Security groups
@@ -210,8 +211,8 @@ Resources:
 
                     # Create prometheus config
                     echo "global:" > prometheus.yml
-                    echo "  scrape_interval: 15s" >> prometheus.yml
-                    echo "  evaluation_interval: 15s" >> prometheus.yml
+                    echo "  scrape_interval: 1s" >> prometheus.yml
+                    echo "  evaluation_interval: 1s" >> prometheus.yml
                     # Rule files
                     echo "rule_files:" >> prometheus.yml
                     echo "  - /etc/prometheus/rules.yml" >> prometheus.yml
@@ -240,11 +241,11 @@ Resources:
 
                     # Create rules
                     echo "groups:" > /etc/prometheus/rules.yml
-                    echo "- name: Down" >> /etc/prometheus/rules.yml
+                    echo "- name: AllInstances" >> /etc/prometheus/rules.yml
                     echo "  rules:" >> /etc/prometheus/rules.yml
-                    echo "  - alert: InstanceDown" >> /etc/prometheus/rules.yml
-                    echo "    expr: up == 0" >> /etc/prometheus/rules.yml
-                    echo "    for: 3m" >> /etc/prometheus/rules.yml
+                    echo "  - alert: Down" >> /etc/prometheus/rules.yml
+                    echo "    expr:  up == 0" >> /etc/prometheus/rules.yml
+                    echo "    for: 2m" >> /etc/prometheus/rules.yml
                     echo "    labels:" >> /etc/prometheus/rules.yml
                     echo "      severity: 'critical'" >> /etc/prometheus/rules.yml
                     echo "    annotations:" >> /etc/prometheus/rules.yml
