@@ -10,7 +10,7 @@ Parameters:
     VPC:
         Description: Deploy the instance in this VPC
         Type: String
-        Default: vpc-0492b2b84bd1a3194
+        Default: vpc-0e4d05f2a580aa44b
     Subnet:
         Description: This subnet must already exist
         Type: String
@@ -18,7 +18,7 @@ Parameters:
     AZ:
         Description: Choose an AZ that corresponds to the Subnet in the !Subnet section
         Type: String
-        Default: us-east-1
+        Default: us-east-1a
     KeyPair:
         Description: |
             Set a keypair you will use to connect to the instance
@@ -46,7 +46,7 @@ Parameters:
             This is the app password for your gmail account.
             Get one here https://support.google.com/accounts/answer/185833?hl=en
         Type: String
-        Default: ${password}
+        Default: dcbjhfkyrrddjtly
 
     FromEmail:
         Description: This is the email to send alerts from (usually same as AuthEmail)
@@ -58,7 +58,7 @@ Parameters:
         Type: String
         Default: olayinkavictor@rocketmail.com
 
-    # aws cloudformation deploy --stack-name prometheus --template-file prometheus.yml --capabilities CAPABILITY_IAM  --parameter-overrides AuthEmail=olayinkav28@gmail.com EmailPassword=${password} FromEmail=olayinkav28@gmail.com ToEmail=olayinkavictor@rocketmail.com     VPC=vpc-0492b2b84bd1a3194 AZ=us-east-1 Subnet=subnet-096323746be72e4e9
+    # aws cloudformation deploy --stack-name prometheus --template-file prometheus.yml --capabilities CAPABILITY_IAM  --parameter-overrides AuthEmail=olayinkav28@gmail.com EmailPassword=dcbjhfkyrrddjtly FromEmail=olayinkav28@gmail.com ToEmail=olayinkavictor@rocketmail.com     VPC=vpc-0e4d05f2a580aa44b AZ=us-east-1 Subnet=subnet-096323746be72e4e9
 
 Resources:
     # Security groups
@@ -179,6 +179,7 @@ Resources:
                     sudo echo "" >> /etc/systemd/system/node-exporter.service
                     sudo echo "[Install]" >> /etc/systemd/system/node-exporter.service
                     sudo echo "WantedBy=multi-user.target" >> /etc/systemd/system/node-exporter.service
+
                     # Configure prometheus service
                     sudo echo "[Unit]" >> /etc/systemd/system/prometheus.service
                     sudo echo "Description=Prometheus" >> /etc/systemd/system/prometheus.service
@@ -193,6 +194,7 @@ Resources:
                     sudo echo "" >> /etc/systemd/system/prometheus.service
                     sudo echo "[Install]" >> /etc/systemd/system/prometheus.service
                     sudo echo "WantedBy=multi-user.target" >> /etc/systemd/system/prometheus.service
+
                     # Configure Alertmanager service
                     sudo echo "[Unit]" >> /etc/systemd/system/alertmanager.service
                     sudo echo "Description=Alert Manager" >> /etc/systemd/system/alertmanager.service
@@ -216,12 +218,14 @@ Resources:
                     # Rule files
                     echo "rule_files:" >> prometheus.yml
                     echo "  - /etc/prometheus/rules.yml" >> prometheus.yml
+
                     # Alerts
                     echo "alerting:" >> prometheus.yml
                     echo "  alertmanagers:" >> prometheus.yml
                     echo "    - static_configs:" >> prometheus.yml
                     echo "      - targets:" >> prometheus.yml
                     echo "          - localhost:9093" >> prometheus.yml
+
                     # JOBS
                     echo "scrape_configs:" >> prometheus.yml
                     # prometheus job
@@ -266,6 +270,7 @@ Resources:
                     echo "        auth_username: ${AuthEmail}" >> alertmanager.yml
                     echo "        auth_identity: ${AuthEmail}" >> alertmanager.yml
                     echo "        auth_password: ${EmailPassword}" >> alertmanager.yml
+
                     # Reposition alertmanager.yml
                     sudo mv alertmanager.yml /etc/prometheus/alertmanager.yml
                     # csuzceqgjrskelub
