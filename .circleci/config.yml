@@ -440,16 +440,15 @@ jobs:
             - run:
                   name: Remove old stacks and files
                   command: |
-                      if [[ "$CurrentWorkflowID" != "$OldWorkflowID" ]]
+                      if [[ "$CurrentWorkflowID" =~ "$OldWorkflowID" ]]
                       then
                           aws s3 rm "s3://newudapeople${OldWorkflowID}" --recursive
                           aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
                           aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-                      else
-                          echo "$OldWorkflowID==$CurrentWorkflowID => all good."
-                          echo Stack names: "${STACKS[@]}"
-                          echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
                       fi
+                      echo "$OldWorkflowID==$CurrentWorkflowID => all good."
+                      echo Stack names: "${STACKS[@]}"
+                      echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
 
     notify:
         docker:
@@ -521,20 +520,20 @@ workflows:
                           only: [master]
             # - add-prometheus-node-exporter:
             #       requires: [deploy-infrastructure]
-            # - configure-infrastructure:
-            #       requires: [deploy-infrastructure]
-            # - run-migrations:
-            #       requires: [configure-infrastructure]
-            # - deploy-frontend:
-            #       requires: [run-migrations]
-            # - deploy-backend:
-            #       requires: [run-migrations]
-            # - smoke-test:
-            #       requires: [deploy-backend, deploy-frontend]
-            # - cloudfront-update:
-            #       requires: [smoke-test]
-            # - cleanup:
-            #       requires: [cloudfront-update]
+            - configure-infrastructure:
+                  requires: [deploy-infrastructure]
+            - run-migrations:
+                  requires: [configure-infrastructure]
+            - deploy-frontend:
+                  requires: [run-migrations]
+            - deploy-backend:
+                  requires: [run-migrations]
+            - smoke-test:
+                  requires: [deploy-backend, deploy-frontend]
+            - cloudfront-update:
+                  requires: [smoke-test]
+            - cleanup:
+                  requires: [cloudfront-update]
             # - notify:
             #       context: CICD ALERT
             #       requires: [cleanup]
