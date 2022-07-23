@@ -447,6 +447,8 @@ jobs:
                           aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
                       else
                           echo "$OldWorkflowID==$CurrentWorkflowID => all good."
+                          echo Stack names: "${STACKS[@]}"
+                          echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
                       fi
 
     notify:
