@@ -1,0 +1,5 @@
+URL01 Git Repo: https://github.com/iYinka/CICD-Automation
+URL02 S3: http://udapeople-538aa69.s3-website-us-east-1.amazonaws.com
+URL03 Cloudfront: https://d1xk3z1zn93192.cloudfront.net
+URL04 Backend: http://54.211.8.252:3030/api/status
+URL05 Prometheus: http://ec2-3-89-108-43.compute-1.amazonaws.com
